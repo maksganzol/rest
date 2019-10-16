@@ -12,26 +12,27 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
-var users []User
 var path string
 
 func main() {
 
+	fmt.Println("Use command `start` to start server")
+	var command string
+	for command != "start" {
+		fmt.Scan(&command)
+	}
+	fmt.Println("Server started...")
+
 	router := mux.NewRouter()
 	path = "users.csv"
 
-	users = append(users, User{"1", "login", "pass", "..."})
-	users = append(users, User{"2", "login2", "pass2", "..."})
-	users = append(users, User{"3", "login3", "pass3", "..."})
-
-	fmt.Println(users)
-
-	router.HandleFunc("/add_user", addUser).Methods("POST")
+	router.HandleFunc("/user", addUser).Methods("POST")
 	router.HandleFunc("/user/{id}", getUser).Methods("GET")
-	router.HandleFunc("/upd_user", updateUser).Methods("PUT")
-	router.HandleFunc("/del_user/{id}", deleteUser).Methods("DELETE")
+	router.HandleFunc("/user/{id}", updateUser).Methods("PUT")
+	router.HandleFunc("/user/{id}", deleteUser).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 
@@ -55,24 +56,42 @@ func getUser(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 	}
+	writer.WriteHeader(404)
 }
 
 func addUser(writer http.ResponseWriter, request *http.Request) {
+
+	var users []User
+
 	writer.Header().Set("Content-Type", "application/json")
 	var user User
 	reqBody, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		fmt.Print(err)
 	}
-	user.Id = strconv.Itoa(rand.Intn(100))
 
-	json.Unmarshal(reqBody, &user)
 	users = getAllUsersFromFile(path)
 	if len(users) != 0 {
 		users[len(users)-1].Introduction = users[len(users)-1].Introduction + "\n"
 	}
-	users = append(users, user)
 
+	json.Unmarshal(reqBody, &user)
+	if !isValidData(user.Login, user.Password) {
+		writer.WriteHeader(415)
+		return
+	}
+
+	user.Id = strconv.Itoa(rand.Intn(1000)) //Генерирум уникальное id пользователю
+	for !isUnicId(user.Id, users) {
+		rand.Seed(time.Now().UnixNano())
+		user.Id = strconv.Itoa(rand.Intn(1000))
+	}
+
+	if isUserExists(user, users) {
+		writer.WriteHeader(409)
+		return
+	}
+	users = append(users, user)
 	err = writeAllUsersToFile(users, path)
 	if err != nil {
 		fmt.Println(err)
@@ -82,20 +101,28 @@ func addUser(writer http.ResponseWriter, request *http.Request) {
 
 func updateUser(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
+	parameters := mux.Vars(request)
 	var user User
 	reqBody, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		fmt.Print(err)
 	}
-	user.Id = strconv.Itoa(rand.Intn(100))
-
-	json.Unmarshal(reqBody, &user)
 
 	users := getAllUsersFromFile(path)
+
+	json.Unmarshal(reqBody, &user)
+	if !isUserExists(user, users) {
+		writer.WriteHeader(404)
+		return
+	}
+
+	user.Id = parameters["id"]
+
 	for i, us := range users {
 		if us.Id == user.Id {
 			users = append(users[:i], users[i+1:]...)
 			users = append(users, user)
+			json.NewEncoder(writer).Encode(user)
 		}
 
 	}
@@ -103,7 +130,7 @@ func updateUser(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	json.NewEncoder(writer).Encode(user)
+
 }
 
 func deleteUser(writer http.ResponseWriter, request *http.Request) {
@@ -112,15 +139,20 @@ func deleteUser(writer http.ResponseWriter, request *http.Request) {
 
 	users := getAllUsersFromFile(path)
 
+	delete := false
 	for i, user := range users {
 		if user.Id == parameters["id"] {
 			users = append(users[:i], users[i+1:]...)
+			delete = true
 		}
 	}
 
-	chars := []byte(users[len(users)-1].Introduction)
-	chars = chars[:len(chars)-1]
-	users[len(users)-1].Introduction = string(chars)
+	if !delete {
+		writer.WriteHeader(404)
+		return
+	}
+
+	users[len(users)-1].Introduction = cutLastChar(users[len(users)-1].Introduction)
 
 	err := writeAllUsersToFile(users, path)
 	if err != nil {
@@ -159,4 +191,42 @@ func writeAllUsersToFile(users []User, path string) error {
 	}
 	file.Close()
 	return err
+}
+
+func isUserExists(user User, users []User) bool {
+	exists := false
+	for _, us := range users {
+		if us.Login == user.Login {
+			exists = true
+		}
+	}
+	return exists
+}
+
+func isValidData(data ...string) bool {
+	valid := "abcdefghigklmnopqrstuvwxyz_1234567890"
+	for _, line := range data {
+		for _, char := range line {
+			if !strings.Contains(valid, string(char)) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func cutLastChar(s string) string {
+	chars := []byte(s)
+	chars = chars[:len(chars)-1]
+	s = string(chars)
+	return s
+}
+
+func isUnicId(id string, users []User) bool {
+	for _, user := range users {
+		if user.Id == id {
+			return false
+		}
+	}
+	return true
 }
