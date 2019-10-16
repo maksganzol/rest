@@ -82,19 +82,15 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="&quot;Second&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;Second&quot;" />
+    <MESSAGE value="&quot;Perfect&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;Perfect&quot;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/Main.go</url>
-          <line>137</line>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/Main.go</url>
-          <line>207</line>
+          <line>208</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
       </breakpoints>

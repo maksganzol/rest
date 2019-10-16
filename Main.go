@@ -91,6 +91,7 @@ func addUser(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(409)
 		return
 	}
+
 	users = append(users, user)
 	err = writeAllUsersToFile(users, path)
 	if err != nil {
@@ -111,16 +112,17 @@ func updateUser(writer http.ResponseWriter, request *http.Request) {
 	users := getAllUsersFromFile(path)
 
 	json.Unmarshal(reqBody, &user)
-	if !isUserExists(user, users) {
+	user.Id = parameters["id"]
+
+	if isUnicId(user.Id, users) {
 		writer.WriteHeader(404)
 		return
 	}
 
-	user.Id = parameters["id"]
-
 	for i, us := range users {
 		if us.Id == user.Id {
 			users = append(users[:i], users[i+1:]...)
+			//users[len(users)-1].Introduction += "\n"
 			users = append(users, user)
 			json.NewEncoder(writer).Encode(user)
 		}
