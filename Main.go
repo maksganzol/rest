@@ -122,7 +122,6 @@ func updateUser(writer http.ResponseWriter, request *http.Request) {
 	for i, us := range users {
 		if us.Id == user.Id {
 			users = append(users[:i], users[i+1:]...)
-			//users[len(users)-1].Introduction += "\n"
 			users = append(users, user)
 			json.NewEncoder(writer).Encode(user)
 		}

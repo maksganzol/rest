@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a330cfec-f091-4260-919b-cc98a34f0db7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.go" beforeDir="false" afterPath="$PROJECT_DIR$/Main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users.csv" beforeDir="false" afterPath="$PROJECT_DIR$/users.csv" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,14 +81,15 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="&quot;Second&quot;" />
     <MESSAGE value="&quot;Perfect&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="&quot;Perfect&quot;" />
+    <MESSAGE value="&quot;Perfectly&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;Perfectly&quot;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/Main.go</url>
-          <line>208</line>
+          <line>207</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
       </breakpoints>
